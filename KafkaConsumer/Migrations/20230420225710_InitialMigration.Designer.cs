@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace KafkaConsumer.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20230420190100_InitialMigrations")]
-    partial class InitialMigrations
+    [Migration("20230420225710_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -32,18 +32,18 @@ namespace KafkaConsumer.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("MachineId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Name")
-                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NiveauCo2")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Temperature")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("TemperatureDate")
