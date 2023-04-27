@@ -20,7 +20,7 @@ namespace KafkaConsumer.DAL.Repositories
             return _entities.ToList();
         }
 
-        public TEntity GetById(int id)
+        public TEntity GetById(Guid id)
         {
             return _entities.Find(id);
         }
