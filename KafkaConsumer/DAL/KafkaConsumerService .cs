@@ -33,11 +33,11 @@ namespace KafkaConsumer.DAL
                     while (true)
                     {
                         var consumer = consumerBuilder.Consume(cancelToken.Token);
-                        var detail = JsonSerializer.Deserialize<MachineDetails>(consumer.Message.Value);
-                        if(detail != null)
+                        var record = JsonSerializer.Deserialize<StatusRecord>(consumer.Message.Value);
+                        if(record != null)
                         {
-                            SaveToDatabase(detail);
-                            Debug.WriteLine($"Detail Id:{detail?.Id}");
+                            SaveToDatabase(record);
+                            Debug.WriteLine($"Detail Id:{record?.Id}");
                         }                       
                       
                     }
@@ -58,11 +58,11 @@ namespace KafkaConsumer.DAL
         {
             return Task.CompletedTask;
         }
-        private void SaveToDatabase(MachineDetails details)
+        private void SaveToDatabase(StatusRecord record)
         {
 
             {
-                _appDbContext.MachineDetails.Add(details);
+                _appDbContext.StatusRecords.Add(record);
                 _appDbContext.SaveChanges();
             }
         }
