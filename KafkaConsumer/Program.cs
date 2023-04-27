@@ -17,8 +17,6 @@ builder.Services.AddSingleton<IHostedService, KafkaConsumerService>();
 builder.Services.AddHostedService<KafkaConsumerService>();
 
 
-
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
