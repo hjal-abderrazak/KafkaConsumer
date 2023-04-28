@@ -242,13 +242,11 @@ namespace KafkaConsumer.Migrations
 
             modelBuilder.Entity("KafkaConsumer.Models.StatusRecord", b =>
                 {
-                    b.HasOne("KafkaConsumer.Models.Machine", "Machine")
+                    b.HasOne("KafkaConsumer.Models.Machine", null)
                         .WithMany("StatusRecords")
                         .HasForeignKey("MachineId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Machine");
                 });
 
             modelBuilder.Entity("KafkaConsumer.Models.User", b =>

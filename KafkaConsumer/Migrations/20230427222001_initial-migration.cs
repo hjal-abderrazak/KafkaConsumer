@@ -6,14 +6,11 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace KafkaConsumer.Migrations
 {
     /// <inheritdoc />
-    public partial class createTableMigrations : Migration
+    public partial class initialmigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "MachineDetails");
-
             migrationBuilder.CreateTable(
                 name: "Departments",
                 columns: table => new
@@ -206,23 +203,6 @@ namespace KafkaConsumer.Migrations
 
             migrationBuilder.DropTable(
                 name: "Factorys");
-
-            migrationBuilder.CreateTable(
-                name: "MachineDetails",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    MachineId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    NiveauCo2 = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Temperature = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    TemperatureDate = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_MachineDetails", x => x.Id);
-                });
         }
     }
 }

@@ -1,5 +1,8 @@
-﻿using KafkaConsumer.Interfaces;
+﻿using KafkaConsumer.DAL.Repositories;
+using KafkaConsumer.Interfaces;
+using KafkaConsumer.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -17,34 +20,59 @@ namespace KafkaConsumer.Controllers
         }
         // GET: api/<UserController>
         [HttpGet]
-        public IEnumerable<string> Get()
+        public IActionResult Get()
         {
-            return new string[] { "value1", "value2" };
+            var users = _userRepository.GetAll();
+            return users == null ? NotFound() : Ok(users);
         }
 
         // GET api/<UserController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public IActionResult GetbyId(Guid id)
         {
-            return "value";
+            var user = _userRepository.GetById(id);
+            return user == null ? NotFound() : Ok(user);
         }
 
         // POST api/<UserController>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public IActionResult Post([FromBody] User user)
         {
+            if (user.Email.IsNullOrEmpty())
+            {
+                return BadRequest("email is required ");
+            }
+            _userRepository.Add(user);
+            return Ok("user added succefuly");
         }
 
         // PUT api/<UserController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public IActionResult update([FromBody] User user)
         {
+            var userToUpdate = _userRepository.GetById(user.Id);
+            if (userToUpdate != null)
+                _userRepository.Update(user);
+            else
+                return BadRequest("user not found");
+
+            return Ok("user updated succefully");
         }
 
         // DELETE api/<UserController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public IActionResult Delete(Guid id)
         {
+            var user = _userRepository.GetById(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                _userRepository.Remove(user);
+                return Ok("user is removed succeffuly");
+            }
         }
     }
 }

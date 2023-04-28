@@ -1,5 +1,8 @@
-﻿using KafkaConsumer.Interfaces;
+﻿using KafkaConsumer.DAL.Repositories;
+using KafkaConsumer.Interfaces;
+using KafkaConsumer.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -17,34 +20,43 @@ namespace KafkaConsumer.Controllers
         }
         // GET: api/<StatusRecordController>
         [HttpGet]
-        public IEnumerable<string> Get()
+        public IActionResult Get()
         {
-            return new string[] { "value1", "value2" };
+            var records = _recordRepository.GetAll();
+            return records == null ? NotFound() : Ok(records);
         }
 
         // GET api/<StatusRecordController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public IActionResult GetbyId(Guid id)
         {
-            return "value";
+            var record = _recordRepository.GetById(id);
+            return record == null ? NotFound() : Ok(record);
         }
 
-        // POST api/<StatusRecordController>
-        [HttpPost]
-        public void Post([FromBody] string value)
+        [HttpGet("{machineId}/all-records")]
+        public IActionResult GetAllMachineRecord(Guid machineId)
         {
+            var records = _recordRepository.Find(r=>r.MachineId==machineId);
+            return records == null ? NotFound() : Ok(records);
         }
 
-        // PUT api/<StatusRecordController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
+
 
         // DELETE api/<StatusRecordController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public IActionResult Delete(Guid id)
         {
+            var recordStatus = _recordRepository.GetById(id);
+            if (recordStatus == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                _recordRepository.Remove(recordStatus);
+                return Ok("record status is removed succeffuly");
+            }
         }
     }
 }

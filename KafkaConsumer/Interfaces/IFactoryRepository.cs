@@ -5,6 +5,6 @@ namespace KafkaConsumer.Interfaces
     public interface IFactoryRepository:IRepository<Factory>
     {
         //if you want to add a custom method that not found in Irepository, you can add here 
-
+        public void Update(Factory factory);
     }
 }

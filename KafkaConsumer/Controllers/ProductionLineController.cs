@@ -1,5 +1,8 @@
-﻿using KafkaConsumer.Interfaces;
+﻿using KafkaConsumer.DAL.Repositories;
+using KafkaConsumer.Interfaces;
+using KafkaConsumer.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -9,42 +12,67 @@ namespace KafkaConsumer.Controllers
     [ApiController]
     public class ProductionLineController : ControllerBase
     {
-        private readonly IMachineRepository _machineRepository;
+        private readonly IProductionLineRepository _prodductionLineRepository;
 
-        public ProductionLineController(IMachineRepository machineRepository)
+        public ProductionLineController(IProductionLineRepository pr)
         {
-            _machineRepository = machineRepository;
+            _prodductionLineRepository = pr;
         }
         // GET: api/<ProductionLineController>
         [HttpGet]
-        public IEnumerable<string> Get()
+        public IActionResult Get()
         {
-            return new string[] { "value1", "value2" };
+            var productionLines = _prodductionLineRepository.GetAll();
+            return productionLines == null ? NotFound() : Ok(productionLines);
         }
 
         // GET api/<ProductionLineController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public IActionResult GetbyId(Guid id)
         {
-            return "value";
+            var productionLine = _prodductionLineRepository.GetById(id);
+            return productionLine == null ? NotFound() : Ok(productionLine);
         }
 
         // POST api/<ProductionLineController>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public IActionResult Post([FromBody] ProductionLine productionLine)
         {
+            if (productionLine.Name.IsNullOrEmpty())
+            {
+                return BadRequest("name is required ");
+            }
+            _prodductionLineRepository.Add(productionLine);
+            return Ok("production line added succefuly");
         }
 
         // PUT api/<ProductionLineController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public IActionResult update([FromBody] ProductionLine productionLine)
         {
+            var productionLineToUpdate = _prodductionLineRepository.GetById(productionLine.Id);
+            if (productionLineToUpdate != null)
+                _prodductionLineRepository.Update(productionLine);
+            else
+                return BadRequest("production line not found");
+
+            return Ok("production line updated succefully");
         }
 
         // DELETE api/<ProductionLineController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public IActionResult Delete(Guid id)
         {
+            var productionLine = _prodductionLineRepository.GetById(id);
+            if (productionLine == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                _prodductionLineRepository.Remove(productionLine);
+                return Ok("production line is removed succeffuly");
+            }
         }
     }
 }

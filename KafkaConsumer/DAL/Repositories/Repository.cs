@@ -41,5 +41,7 @@ namespace KafkaConsumer.DAL.Repositories
             _entities.Remove(entity);
             _context.SaveChanges();
         }
+
+        
     }
 }

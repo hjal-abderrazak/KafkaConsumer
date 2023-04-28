@@ -9,6 +9,7 @@ namespace KafkaConsumer.DAL
         {
         
         }
+
         public DbSet<User> Users { get; set; }
         public DbSet<Department> Departments { get; set; }
         public DbSet<Factory> Factorys { get; set; }
@@ -29,8 +30,8 @@ namespace KafkaConsumer.DAL
                 .WithOne(m=>m.ProductionLine).HasForeignKey(m=>m.ProductionLineId);
 
             //machine and status record relation 
-            modelBuilder.Entity<Machine>().HasMany(m=>m.StatusRecords)
-                .WithOne(s=>s.Machine).HasForeignKey(s=>s.MachineId);
+            //modelBuilder.Entity<Machine>().HasMany(m=>m.StatusRecords)
+            //    .WithOne(s=>s.Machine).HasForeignKey(s=>s.MachineId);
 
             //productionLine and Factory relation
             modelBuilder.Entity<Factory>().HasMany(f => f.productionLines)

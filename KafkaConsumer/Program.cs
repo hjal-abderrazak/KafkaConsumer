@@ -22,8 +22,8 @@ builder.Services.AddSingleton<AppDbContext>();
 
 
 /* kafka service config*/
-builder.Services.AddSingleton<IHostedService, KafkaConsumerService>();
-builder.Services.AddHostedService<KafkaConsumerService>();
+//builder.Services.AddSingleton<IHostedService, KafkaConsumerService>();
+//builder.Services.AddHostedService<KafkaConsumerService>();
 /* kafka service config*/
 
 
