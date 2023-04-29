@@ -20,5 +20,7 @@ namespace KafkaConsumer.DAL.Repositories
             context.SaveChanges();
             
         }
+
+      
     }
 }

@@ -6,5 +6,7 @@ namespace KafkaConsumer.Interfaces
     {
         //if you want to add a custom method that not found in Irepository, you can add here 
         public void Update(Machine machine);
+
+        public ICollection<Machine> getAlluserMachines(Guid userId);
     }
 }

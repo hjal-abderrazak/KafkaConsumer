@@ -34,6 +34,14 @@ namespace KafkaConsumer.Controllers
             return machine == null ? NotFound() : Ok(machine);
         }
 
+        // GET api/<MachineController>/5
+        [HttpGet("users/{userId}/all-machine")]
+        public IActionResult GetAllUserMachines(Guid userId)
+        {
+            var machines = _machineRepository.getAlluserMachines(userId);
+            return machines == null ? NotFound() : Ok(machines);
+        }
+
         // POST api/<MachineController>
         [HttpPost]
         public IActionResult Post([FromBody] Machine machine)

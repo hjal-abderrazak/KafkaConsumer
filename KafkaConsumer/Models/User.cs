@@ -16,6 +16,8 @@ namespace KafkaConsumer.Models
         public Guid DepartmentId { get; set; }
         public Department Department { get; set; }
 
+        public Guid FactoryId { get; set; }
+        public Factory Factory { get; set; }
         public ICollection<Maintenance> Maintenances { get; }
         public User()
         {

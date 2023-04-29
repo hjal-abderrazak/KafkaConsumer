@@ -34,7 +34,7 @@ namespace KafkaConsumer.Controllers
             return record == null ? NotFound() : Ok(record);
         }
 
-        [HttpGet("{machineId}/all-records")]
+        [HttpGet("/machines/{machineId}/all-records")]
         public IActionResult GetAllMachineRecord(Guid machineId)
         {
             var records = _recordRepository.Find(r=>r.MachineId==machineId);

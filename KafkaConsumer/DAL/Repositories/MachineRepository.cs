@@ -11,6 +11,7 @@ namespace KafkaConsumer.DAL.Repositories
         {
             this.context = context;
         }
+
         public void Update(Machine machine)
         {
             var machineToUpdate = this.context.Machines.FirstOrDefault(m => m.Id == machine.Id);
@@ -22,6 +23,27 @@ namespace KafkaConsumer.DAL.Repositories
             machineToUpdate.ProductionLineId = machine.ProductionLineId;
             machineToUpdate.LastMaintainedTime = machine.LastMaintainedTime;
             context.SaveChanges();
+        }
+
+        public ICollection<Machine> getAlluserMachines(Guid userId)
+        {
+           
+            // using ef
+            return context.Users.Where(u => u.Id ==userId).SelectMany(u => u.Factory.productionLines)
+                .SelectMany(pl => pl.machines).ToList();
+            
+            
+            //using linq
+            //return  (from machine in context.Machines
+            //                            join productionLine in context.ProductionLines
+            //                            on machine.ProductionLineId equals productionLine.Id
+            //                            join factory in context.Factorys
+            //                            on productionLine.FactoryId equals factory.Id
+            //                            join user in context.Users
+            //                            on factory.Id equals user.Id
+            //                            select machine).ToList();
+
+           
         }
     }
 }

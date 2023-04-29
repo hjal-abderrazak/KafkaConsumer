@@ -34,7 +34,7 @@ namespace KafkaConsumer.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Departments");
+                    b.ToTable("Departments", (string)null);
                 });
 
             modelBuilder.Entity("KafkaConsumer.Models.Factory", b =>
@@ -53,7 +53,7 @@ namespace KafkaConsumer.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Factorys");
+                    b.ToTable("Factorys", (string)null);
                 });
 
             modelBuilder.Entity("KafkaConsumer.Models.Machine", b =>
@@ -86,7 +86,7 @@ namespace KafkaConsumer.Migrations
 
                     b.HasIndex("ProductionLineId");
 
-                    b.ToTable("Machines");
+                    b.ToTable("Machines", (string)null);
                 });
 
             modelBuilder.Entity("KafkaConsumer.Models.Maintenance", b =>
@@ -114,7 +114,7 @@ namespace KafkaConsumer.Migrations
 
                     b.HasIndex("TechnicienId");
 
-                    b.ToTable("maintenances");
+                    b.ToTable("maintenances", (string)null);
                 });
 
             modelBuilder.Entity("KafkaConsumer.Models.ProductionLine", b =>
@@ -134,7 +134,7 @@ namespace KafkaConsumer.Migrations
 
                     b.HasIndex("FactoryId");
 
-                    b.ToTable("ProductionLines");
+                    b.ToTable("ProductionLines", (string)null);
                 });
 
             modelBuilder.Entity("KafkaConsumer.Models.StatusRecord", b =>
@@ -165,7 +165,7 @@ namespace KafkaConsumer.Migrations
 
                     b.HasIndex("MachineId");
 
-                    b.ToTable("StatusRecords");
+                    b.ToTable("StatusRecords", (string)null);
                 });
 
             modelBuilder.Entity("KafkaConsumer.Models.User", b =>
@@ -204,7 +204,7 @@ namespace KafkaConsumer.Migrations
 
                     b.HasIndex("DepartmentId");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("KafkaConsumer.Models.Machine", b =>

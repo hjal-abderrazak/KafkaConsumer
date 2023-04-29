@@ -25,18 +25,23 @@ namespace KafkaConsumer.DAL
             modelBuilder.Entity<Department>().HasMany(d => d.Users)
                 .WithOne(u => u.Department).HasForeignKey(u=>u.DepartmentId);
 
+            //user and  Factory  relation
+            modelBuilder.Entity<Factory>().HasMany(f => f.Users)
+                .WithOne(u => u.Factory).HasForeignKey(u => u.FactoryId);
+
+            //productionLine and Factory relation
+            modelBuilder.Entity<Factory>().HasMany(f => f.productionLines)
+                .WithOne(p => p.Factory).HasForeignKey(p => p.FactoryId);
+            
             //machine and productionline relation
             modelBuilder.Entity<ProductionLine>().HasMany(p=>p.machines)
                 .WithOne(m=>m.ProductionLine).HasForeignKey(m=>m.ProductionLineId);
 
             //machine and status record relation 
-            //modelBuilder.Entity<Machine>().HasMany(m=>m.StatusRecords)
-            //    .WithOne(s=>s.Machine).HasForeignKey(s=>s.MachineId);
+            modelBuilder.Entity<Machine>().HasMany(m => m.StatusRecords)
+                .WithOne(s => s.Machine).HasForeignKey(s => s.MachineId);
 
-            //productionLine and Factory relation
-            modelBuilder.Entity<Factory>().HasMany(f => f.productionLines)
-                .WithOne(p => p.Factory).HasForeignKey(p => p.FactoryId)
-                .IsRequired(false);
+           
 
             //machine and maintenance relation 
             modelBuilder.Entity<Machine>().HasMany(m => m.Maintenances)

@@ -9,7 +9,7 @@
         public string? NiveauCo2 { get; set; }
         public DateTime TemperatureDate { get; set; }
         public Guid MachineId { get; set; }
-       // public Machine Machine { get; set; }
+        public Machine Machine { get; set; }
         public StatusRecord() { }
 
         
