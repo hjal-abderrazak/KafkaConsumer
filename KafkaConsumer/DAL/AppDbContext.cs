@@ -23,11 +23,11 @@ namespace KafkaConsumer.DAL
             base.OnModelCreating(modelBuilder);
             //department and employee relation
             modelBuilder.Entity<Department>().HasMany(d => d.Users)
-                .WithOne(u => u.Department).HasForeignKey(u=>u.DepartmentId);
+                .WithOne(u => u.Department).HasForeignKey(u=>u.DepartmentId).IsRequired(false);
 
             //user and  Factory  relation
             modelBuilder.Entity<Factory>().HasMany(f => f.Users)
-                .WithOne(u => u.Factory).HasForeignKey(u => u.FactoryId);
+                .WithOne(u => u.Factory).HasForeignKey(u => u.FactoryId).IsRequired(false);
 
             //productionLine and Factory relation
             modelBuilder.Entity<Factory>().HasMany(f => f.productionLines)

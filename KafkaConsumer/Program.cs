@@ -1,6 +1,7 @@
 using KafkaConsumer.DAL;
 using KafkaConsumer.DAL.Repositories;
 using KafkaConsumer.Interfaces;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.SwaggerUI;
 
@@ -35,6 +36,15 @@ builder.Services.AddScoped<IProductionLineRepository, ProductionLineRepository>(
 builder.Services.AddScoped<IStatusRecordRepository, StatusRecordRepository>();
 builder.Services.AddScoped<IUserRepository,UserRepository>();
 
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+       .AddCookie(options =>
+       {
+           options.Cookie.HttpOnly = true;
+           options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
+           options.SlidingExpiration = true;
+           options.LoginPath = "/account/login";
+           options.AccessDeniedPath = "/account/accessdenied";
+       });
 
 var app = builder.Build();
 
@@ -50,6 +60,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseRouting();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

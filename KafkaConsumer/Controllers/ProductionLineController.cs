@@ -1,6 +1,7 @@
 ﻿using KafkaConsumer.DAL.Repositories;
 using KafkaConsumer.Interfaces;
 using KafkaConsumer.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 
@@ -10,6 +11,7 @@ namespace KafkaConsumer.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ProductionLineController : ControllerBase
     {
         private readonly IProductionLineRepository _prodductionLineRepository;

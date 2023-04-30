@@ -11,14 +11,14 @@ namespace KafkaConsumer.Models
         [JsonIgnore]
         public string Password { get; set; }
         public string Role { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        public Guid DepartmentId { get; set; }
-        public Department Department { get; set; }
+        public Guid? DepartmentId { get; set; }
+        public Department? Department { get; set; }
 
-        public Guid FactoryId { get; set; }
-        public Factory Factory { get; set; }
-        public ICollection<Maintenance> Maintenances { get; }
+        public Guid? FactoryId { get; set; }
+        public Factory? Factory { get; set; }
+        public ICollection<Maintenance> Maintenances { get; }= new List<Maintenance>();
         public User()
         {
             
