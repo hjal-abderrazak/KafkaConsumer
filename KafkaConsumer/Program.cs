@@ -28,6 +28,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContextPool<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
 builder.Services.AddSingleton<AppDbContext>();
+builder.Services.AddSingleton<MyHub>();
 //database config
 
 
@@ -46,21 +47,7 @@ builder.Services.AddScoped<IStatusRecordRepository, StatusRecordRepository>();
 builder.Services.AddScoped<IUserRepository,UserRepository>();
 
 builder.Services.AddScoped<JwtHelper>();
-//builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-//       .AddCookie(options =>
-//       {
-//           //options.Cookie.HttpOnly = true;
-//           //options.ExpireTimeSpan = TimeSpan.FromHours(3);
-//           //options.SlidingExpiration = true;
-//           //options.LoginPath = "/account/login";
-//           //options.AccessDeniedPath = "/account/accessdenied";
-//           options.LoginPath = "/api/auth/login"; // Set the login URL
-//           options.LogoutPath = "/api/auth/logout"; // Set the logout URL
-//           options.Cookie.HttpOnly = true;
-//           options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Use HTTPS
-//           options.Cookie.SameSite = SameSiteMode.Strict; // Prevent CSRF attacks
-//           options.Cookie.IsEssential = true; // Make the cookie essential
-//       });
+builder.Services.AddSignalR();
 //Configure JWT authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -114,6 +101,8 @@ app.MapControllers();
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapControllers();
+    endpoints.MapHub<MyHub>("/myhub");
+
     //endpoints.MapRazorPages();
 });
 
