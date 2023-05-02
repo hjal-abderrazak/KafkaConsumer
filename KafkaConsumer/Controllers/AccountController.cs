@@ -1,12 +1,19 @@
 ﻿
+using Confluent.Kafka;
 using KafkaConsumer.Dtos;
+using KafkaConsumer.Helper;
 using KafkaConsumer.Interfaces;
 using KafkaConsumer.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text;
 
 namespace KafkaConsumer.Controllers
 {
@@ -15,55 +22,41 @@ namespace KafkaConsumer.Controllers
     public class AccountController : ControllerBase
     {
         private readonly IUserRepository _userRepository;
+        private readonly JwtHelper jwtHelper;
+        public IConfiguration config { get; }
 
-        public AccountController(IUserRepository r)
+        public AccountController(IUserRepository r,IConfiguration configuration,JwtHelper helper)
         {
             _userRepository = r;
+            config = configuration;
+            jwtHelper = helper;
         }
 
 
         [HttpPost("register")]
+        [AllowAnonymous]
         public async Task<IActionResult> Register([FromBody] RegisterDto userDto)
         {
             
             var passwordHasher = new PasswordHasher<object>();
-            
             var user = new User 
             { Email = userDto.Email,
             FirstName=userDto.FirstName,
             LastName = userDto.LastName,
             Password= passwordHasher.HashPassword(null, userDto.Password),
             Role = userDto.Role};
-
-            _userRepository.Add(user);
-
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier,user.Id.ToString()),
-                new Claim(ClaimTypes.Role, user.Role),
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.GivenName, user.FirstName),
-                new Claim(ClaimTypes.Surname, user.LastName),
-
-                // Add any additional claims here...
-            };
-
-            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
-            var principal = new ClaimsPrincipal(identity);
-
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
-            return Ok();
+            _userRepository.Add(user);            
+            return Ok(new {message = "account created succefuly"});
         }
 
-        [HttpPost]
-        [Route("login")]
+        [HttpPost("login")]
+        [AllowAnonymous]
         public async Task<IActionResult> Login(LoginDto loginDto)
         {
            var user = _userRepository.Find(u=>u.Email == loginDto.Email).FirstOrDefault();
             if (user == null)
             {
-                return BadRequest("email  is wrong");
+                return BadRequest(new{message = "sorry we have not found accound with this email"});
             }
             var passwordHasher = new PasswordHasher<object>();
             var result = passwordHasher.VerifyHashedPassword(null, user.Password, loginDto.Password);
@@ -71,23 +64,14 @@ namespace KafkaConsumer.Controllers
             {
                 case PasswordVerificationResult.Success or PasswordVerificationResult.SuccessRehashNeeded:
                     // Password is correct
-                    var claims = new List<Claim>
-                    {
-                        new Claim(ClaimTypes.NameIdentifier,user.Id.ToString()),
-                        new Claim(ClaimTypes.Role, user.Role),
-                        new Claim(ClaimTypes.Email, user.Email),
-                        new Claim(ClaimTypes.GivenName, user.FirstName),
-                        new Claim(ClaimTypes.Surname, user.LastName)
-                    };
-                    var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                    var principal = new ClaimsPrincipal(identity);
-                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
-                    Response.Headers.Add("X-Authenticated", "true");
-                    return Ok();
+                    var token = jwtHelper.generate(user); // generate JWT token here
+                    Response.Cookies.Append("token", token, 
+                        new CookieOptions {IsEssential=true, HttpOnly = true,SameSite=SameSiteMode.None,Secure=true });
+                    return Ok(new { message = "success", token = token });
                     break;
                 case PasswordVerificationResult.Failed:
                     // Password is incorrect
-                    return BadRequest("password is wrong");
+                    return BadRequest(new{message = "password incoorect"});
                     break;
                 default:
                     return BadRequest("something  wrong");
@@ -101,25 +85,52 @@ namespace KafkaConsumer.Controllers
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-
-            return Ok();
+            Response.Cookies.Delete("token");
+            return Ok(new { message = "Logout successful" });
         }
 
         [HttpGet]
         [Route("profile")]
+        //[Authorize]
         public async Task<IActionResult> profile()
-        {
-            Response.Headers.Add("X-Authenticated", "true");
-            var userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        {   //method 1 
+            var jwt = Request.Cookies["token"];
+            var token = jwtHelper.Verify(jwt);
+            var claims = token.Claims;
+            var userId = claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            var role = HttpContext.User.FindFirstValue(ClaimTypes.Role);
+
             if (userId == null)
             {
-                return NotFound();
+                Unauthorized();
             }
             return Ok(_userRepository.GetById(Guid.Parse(userId)));
+
+            //var identity = HttpContext.User.Identity as ClaimsIdentity;
+            //if(identity != null)
+            //{
+            //    var userClaims = identity.Claims;
+            //    var user = new User
+            //    {
+            //        Id = Guid.Parse(userClaims.FirstOrDefault(u => u.Type == ClaimTypes.NameIdentifier)?.Value),
+            //        FirstName = userClaims.FirstOrDefault(o => o.Type == ClaimTypes.GivenName)?.Value,
+            //        Email = userClaims.FirstOrDefault(o => o.Type == ClaimTypes.Email)?.Value,
+            //        LastName = userClaims.FirstOrDefault(o => o.Type == ClaimTypes.Surname)?.Value,
+            //        Role = userClaims.FirstOrDefault(o => o.Type == ClaimTypes.Role)?.Value
+            //    };
+            //    return Ok(user);
+            //}
+            //return BadRequest(new { Message = "error" });
+
         }
+
+
+
+        
     }
 }
+
+   
 
 
 /*

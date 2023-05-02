@@ -1,15 +1,24 @@
 using KafkaConsumer.DAL;
 using KafkaConsumer.DAL.Repositories;
+using KafkaConsumer.Helper;
 using KafkaConsumer.Interfaces;
+
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.SwaggerUI;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+
+
 
 // Add services to the container.
 
 builder.Services.AddControllers();
+builder.Services.AddMvc();
 //swager config
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -36,15 +45,43 @@ builder.Services.AddScoped<IProductionLineRepository, ProductionLineRepository>(
 builder.Services.AddScoped<IStatusRecordRepository, StatusRecordRepository>();
 builder.Services.AddScoped<IUserRepository,UserRepository>();
 
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-       .AddCookie(options =>
-       {
-           options.Cookie.HttpOnly = true;
-           options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
-           options.SlidingExpiration = true;
-           options.LoginPath = "/account/login";
-           options.AccessDeniedPath = "/account/accessdenied";
-       });
+builder.Services.AddScoped<JwtHelper>();
+//builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+//       .AddCookie(options =>
+//       {
+//           //options.Cookie.HttpOnly = true;
+//           //options.ExpireTimeSpan = TimeSpan.FromHours(3);
+//           //options.SlidingExpiration = true;
+//           //options.LoginPath = "/account/login";
+//           //options.AccessDeniedPath = "/account/accessdenied";
+//           options.LoginPath = "/api/auth/login"; // Set the login URL
+//           options.LogoutPath = "/api/auth/logout"; // Set the logout URL
+//           options.Cookie.HttpOnly = true;
+//           options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Use HTTPS
+//           options.Cookie.SameSite = SameSiteMode.Strict; // Prevent CSRF attacks
+//           options.Cookie.IsEssential = true; // Make the cookie essential
+//       });
+//Configure JWT authentication
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(builder.Configuration["JwtConfig:Secret"])),
+            ValidateIssuer = false,
+            //ValidIssuer = builder.Configuration["JwtConfig:Issuer"],
+            ValidateAudience = false,
+            //ValidAudience = builder.Configuration["JwtConfig:Audience"],
+        };
+    });
+builder.Services.Configure<CookiePolicyOptions>(options =>
+{
+    // This lambda determines whether user consent for non-essential cookies is needed for a given request.
+    options.CheckConsentNeeded = context => true;
+    options.MinimumSameSitePolicy = SameSiteMode.None;
+});
 
 var app = builder.Build();
 
@@ -62,10 +99,22 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRouting();
 
+app.UseCors(options => options
+                        .WithOrigins("http://localhost:3000", "http://localhost:8080", "http://localhost:4200")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials()
+                        );
 app.UseAuthentication();
-
 app.UseAuthorization();
 
+
+
 app.MapControllers();
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+    //endpoints.MapRazorPages();
+});
 
 app.Run();
